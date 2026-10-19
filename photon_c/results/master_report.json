@@ -1,0 +1,157 @@
+{
+ "version": "photon-c master (hardened)",
+ "date": "2026-10-14",
+ "headline": "4K 29.97fps video at 208 kbps (0.000279 bits/pixel/frame) with a working, fuzz-hardened, bit-exact decoder; native v6 fused colour kernel, fuzz-hardened",
+ "bitrate_4k_atto": {
+  "kbps": 207.8,
+  "bpp": 0.0002786,
+  "vs_raw_uncompressed_yuv420_30fps": "raw=2,986,700 kbps -> 14,376x compression",
+  "bytes_50s": 1300026,
+  "quality": {
+   "psnr_db": 21.58,
+   "psnr_min_db": 18.48,
+   "ssim": 0.6346,
+   "note": "ultra-aggressive preset; femto/nano/lean trade bitrate for quality (see rd_table)"
+  }
+ },
+ "rd_table_4k_1500f": [
+  {
+   "codec": "photon-c (photon-atto)",
+   "kbps": 207.8,
+   "psnr_db": 21.58,
+   "ssim": 0.6346
+  },
+  {
+   "codec": "photon-c (photon-femto)",
+   "kbps": 319.0,
+   "psnr_db": 23.63,
+   "ssim": 0.6871
+  },
+  {
+   "codec": "photon-c (photon-nano)",
+   "kbps": 748.7,
+   "psnr_db": 26.04,
+   "ssim": 0.7439
+  },
+  {
+   "codec": "photon-c (photon-lean)",
+   "kbps": 2213.7,
+   "psnr_db": 28.27,
+   "ssim": 0.7983
+  },
+  {
+   "codec": "x264 slow (target 200k)",
+   "kbps": 209.6,
+   "psnr_db": 19.23,
+   "ssim": 0.5211
+  },
+  {
+   "codec": "x264 slow (target 600k)",
+   "kbps": 621.5,
+   "psnr_db": 30.24,
+   "ssim": 0.8493
+  },
+  {
+   "codec": "x264 slow (target 1500k)",
+   "kbps": 1565.3,
+   "psnr_db": 36.28,
+   "ssim": 0.9629
+  }
+ ],
+ "compute_4k_atto_per_1500f": {
+  "encode": {
+   "wall_fps": 2.732,
+   "cpu_s_per_video_s": 16.141,
+   "peak_rss_gb": 0.806
+  },
+  "decode": {
+   "wall_fps": 5.687,
+   "cpu_s_per_video_s": 7.904,
+   "peak_rss_gb": 0.806,
+   "note": "native colour kernel integrated; interleaved A/B shows >= python, 2-core VM noise floor +/-35%"
+  },
+  "x264_decode_reference_fps": 210.2,
+  "x264_encode_reference_fps": 15.4
+ },
+ "native_kernel_v4": {
+  "proof": [
+   "exhaustive 0/16,777,216 cv2 YCrCb->RGB input grid mismatches",
+   "md5 0/150 decoded 4K frames vs python path end-to-end"
+  ],
+  "op_level": "colour conversion 54 ms -> 53 ms serial / 24 ms 2-thread (4K plane)",
+  "why_not_50x": "NumPy plane ops were already vectorized C; honest measurement, see README"
+ },
+ "security_hardening": {
+  "fuzz_battery": {
+   "cases": 831,
+   "clean_streamerror": 226,
+   "decoded_partial_payload": 605,
+   "unexpected": 0,
+   "hangs": 0,
+   "memory_bombs": 0
+  },
+  "guards": [
+   "magic/version/fps/header-field validation before any allocation",
+   "payload count/length caps + bounds (MAX_PACKET 1GB, MAX_SYMS 4M)",
+   "level geometry cross-checked vs trusted size chain (kills 2TB numpy bomb)",
+   "n_coded <= blocks cap (kills 4-billion-iteration decoder loop DoS)",
+   "rANS table entries bounded, zero-frequency tables rejected",
+   "all decode failures surface as StreamError; CLI reports and exits rc!=0"
+  ],
+  "remaining_known_gap": "no bitstream integrity tag (CRC/MAC): corrupt payload can decode to wrong pixels without error -- roadmap item"
+ },
+ "regression": {
+  "rans_suite": "PASS (none failed)",
+  "native_exhaustive": "PASS 0/16,777,216",
+  "decode_all_buffer_rotation_safety": "PASS 7/7 md5",
+  "cli_encode_decode_smoke": "PASS (photon-sd, photon-sd-atto presets)",
+  "two_pass_rate_control_smoke": "PASS --kbps 400 hit ~2756B+11x827B"
+ },
+ "native_kernel_v6_fused": {
+  "what": "chroma 2x upsample fused INTO the colour kernel (separable dyadic taps), replacing cv2.resize(x2) + convert at 4K",
+  "proof": [
+   "C vs numpy fallback bit-exact 24/24 random planes + 4K plane",
+   "md5 0/1500 mismatches vs pre-change encoder hashes on the real 4K atto stream (stored hashes, full decode)",
+   "ASan clean, full regression + 831-case fuzz re-run green"
+  ],
+  "op_level": "colour+chroma slice 121-144 ms -> 67-69 ms per 4K frame (~1.8x)",
+  "memory": "eliminates 132 MB/frame of upsampled f64 chroma intermediates",
+  "end_to_end_decode_4k": "~160-170 ms/f (5.9-6.3 f/s); 2-core VM noise floor dominates",
+  "bug_found_and_fixed": "odd-pixel RGB write offset 3*(j+1) vs 3*j+6 -> heap overflow caught by ASan, fixed"
+ },
+ "phase_02b_speed_upgrade": {
+  "decode_4k_atto_best_fps": 9.78,
+  "decode_4k_atto_f64_fps": 8.91,
+  "encode_720p_atto_fps": 15.36,
+  "colour_slice_ms": {
+   "before": "121-144",
+   "after_f32": "26-27 (fused, OMP)",
+   "after_f64": "31-35"
+  },
+  "step1_tiling_verdict": "already parallel: cv2 threads=2 measured 39.1->23.6 ms on the Lanczos resize; fused kernel now OMP-splits rows with threshold 1<<21 (4K fell just under the old 1<<23 cutoff).  No extra python ThreadPool gain available on a 2-core box.",
+  "step2_float32_verdict": "PHOTON_F32=1 env flag; RDT dtype in codec.py (DC chain stays f64).  Enc+dec run the same code path so roundtrip stays locked: 0/20 dec(enc) pixel mismatches, 0.00 dB drift, f64-encoded stream md5s unchanged 0/30.",
+  "step3_fused_kernel_verdict": "chroma up-conversion fused into C colour kernel; a Lanczos L4+add macro kernel is the remaining fuse target.",
+  "regression": "rans none, ASan clean, fuzz 831 clean, decoder_safety PASS, two-pass RC fine"
+ },
+ "good_internet_tier": {
+  "presets": {
+   "photon-good-4k": {
+    "rate": "5-25 Mbit/s (content-dependent)",
+    "measured_4k": "5.5 Mbit/s natural-ish content 38.2 dB; 19.6 Mbit/s noisy content 26.7 dB",
+    "enc_fps_4k": 0.24,
+    "dec_fps_4k": 1.08
+   },
+   "photon-good": {
+    "rate": "4-10 Mbit/s typ"
+   },
+   "photon-good-sd": {
+    "rate": "0.8-1.5 Mbit/s",
+    "measured_360p": "1085 kbit/s 31.7 dB, enc 14.6 f/s dec 51.6 f/s"
+   }
+  },
+  "design": "same PHOTON architecture (base+2 bands at tx_depth=2, all transmitted, short GOP 16, qp 88 -- knee of the quality curve), NOT synthesized like the atto family; ceiling control = --kbps via two-pass RC (rc_family now walks up to good-* rungs, ceiling semantics: settle at first rung <= target)",
+  "rate_ceiling_demo": "target 500 kbit/s -> 356 kbit/s (err 0.71), ladder walked good-sd -> hd-femto automatically",
+  "bug_fixed": "chroma_min_side header slot is u8 (max 255): good-4k chroma base was 400 -> ValueError raised cleanly + preset reduced to 250",
+  "regression": "rans none, decoder_safety PASS, fuzz 831 clean after changes"
+ }
+}

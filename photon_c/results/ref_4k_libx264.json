@@ -1,0 +1,24 @@
+[
+  {
+    "codec": "libx264",
+    "target_kbps": 320.0,
+    "kbps": 339.2,
+    "psnr": 23.17,
+    "ssim": 0.5205,
+    "bpp": 0.0004543895747599451,
+    "nframes": 48,
+    "settings": "preset slow, tune psnr, 2-pass, g=60, default threads",
+    "note": "single successful run before 4K OOM pressure; bpp filled below"
+  },
+  {
+    "codec": "libx264",
+    "target_kbps": 160.0,
+    "kbps": 388.6,
+    "psnr": 22.12,
+    "psnr_min": 19.88,
+    "ssim": 0.5167,
+    "bpp": 0.0005205654149519891,
+    "nframes": 48,
+    "settings": "preset slow, tune psnr, threads=1, 2-pass, g=60"
+  }
+]

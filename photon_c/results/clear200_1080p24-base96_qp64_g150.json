@@ -1,0 +1,18 @@
+{
+ "spec": "1080p24-base96,qp64,g150",
+ "w": 1920,
+ "h": 1080,
+ "fps": 24,
+ "n": 600,
+ "kbps": 224.9,
+ "tx": 0,
+ "qp": 64,
+ "gop": 150,
+ "base_min_side": 96,
+ "psnr_mean": 24.37,
+ "psnr_min": 23.14,
+ "md5_bad": 0,
+ "stream": "/home/user/photon/results/clear200_1080p24-base96_qp64_g150.phtn",
+ "mp4": "/home/user/photon/out/clear200_1080p24-base96_qp64_g150.mp4",
+ "dec_fps_no_pipe": 8.28
+}

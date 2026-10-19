@@ -1,0 +1,108 @@
+{
+ "photon_enc_atto": {
+  "frames": 1500,
+  "wall_s": 549.0,
+  "cpu_s": 807.8,
+  "fps_wall": 2.732,
+  "cpu_s_per_video_s": 16.141,
+  "peak_rss_gb": 0.806,
+  "bytes": 1300026,
+  "kbps": 207.8,
+  "note": "includes cv2 reading the lossless mezzanine (source ingest); kbps should match the real4k benchmark exactly (deterministic)"
+ },
+ "photon_dec_atto": {
+  "frames": 1500,
+  "wall_s": 263.8,
+  "cpu_s": 395.6,
+  "fps_wall": 5.687,
+  "cpu_s_per_video_s": 7.904,
+  "peak_rss_gb": 0.806
+ },
+ "x264_enc_200k_1pass_t2": {
+  "frames": 1500,
+  "wall_s": 97.6,
+  "cpu_s": 190.2,
+  "fps_wall": 15.366,
+  "cpu_s_per_video_s": 3.801,
+  "peak_rss_gb": 1.048,
+  "bytes": 1929483,
+  "kbps": 308.4,
+  "note": "single-pass ABR here: measures encode compute; the quality table uses two-pass (same compute x2)"
+ },
+ "x264_enc_200k_1pass_t1": {
+  "frames": 1500,
+  "wall_s": 123.3,
+  "cpu_s": 184.8,
+  "fps_wall": 12.166,
+  "cpu_s_per_video_s": 3.693,
+  "peak_rss_gb": 1.048,
+  "bytes": 1939661,
+  "kbps": 310.0,
+  "note": "single-pass ABR here: measures encode compute; the quality table uses two-pass (same compute x2)"
+ },
+ "x264_dec_200k": {
+  "frames": 1500,
+  "wall_s": 7.1,
+  "cpu_s": 13.9,
+  "fps_wall": 210.191,
+  "cpu_s_per_video_s": 0.278,
+  "peak_rss_gb": 1.048
+ },
+ "_energy_model": {
+  "basis": "No hardware power counter exists in this sandbox (no RAPL, no powertop/perf). Energy = CPU-seconds x assumed sustained package power; the 5/15 W bracket covers phone-SoC to hot laptop. CPU-time itself is exact and is the real number to compare.",
+  "assumed_watts": 10.0,
+  "video": "1500 f 4K29.97 = 50.05 s",
+  "summary": {
+   "photon_enc_atto": {
+    "cpu_minutes_per_video_minute": 968.46,
+    "est_joules_per_video_minute_at_10W": 581076.0,
+    "est_Wh_per_video_hour_at_10W": 9684.6,
+    "sensitivity_Wh_per_video_hour": {
+     "5W": 4842.3,
+     "10W": 9684.6,
+     "15W": 14526.9
+    }
+   },
+   "photon_dec_atto": {
+    "cpu_minutes_per_video_minute": 474.24,
+    "est_joules_per_video_minute_at_10W": 284544.0,
+    "est_Wh_per_video_hour_at_10W": 4742.4,
+    "sensitivity_Wh_per_video_hour": {
+     "5W": 2371.2,
+     "10W": 4742.4,
+     "15W": 7113.6
+    }
+   },
+   "x264_enc_200k_1pass_t2": {
+    "cpu_minutes_per_video_minute": 228.06,
+    "est_joules_per_video_minute_at_10W": 136836.0,
+    "est_Wh_per_video_hour_at_10W": 2280.6,
+    "sensitivity_Wh_per_video_hour": {
+     "5W": 1140.3,
+     "10W": 2280.6,
+     "15W": 3420.9
+    }
+   },
+   "x264_enc_200k_1pass_t1": {
+    "cpu_minutes_per_video_minute": 221.58,
+    "est_joules_per_video_minute_at_10W": 132948.0,
+    "est_Wh_per_video_hour_at_10W": 2215.8,
+    "sensitivity_Wh_per_video_hour": {
+     "5W": 1107.9,
+     "10W": 2215.8,
+     "15W": 3323.7
+    }
+   },
+   "x264_dec_200k": {
+    "cpu_minutes_per_video_minute": 16.68,
+    "est_joules_per_video_minute_at_10W": 10008.0,
+    "est_Wh_per_video_hour_at_10W": 166.8,
+    "sensitivity_Wh_per_video_hour": {
+     "5W": 83.4,
+     "10W": 166.8,
+     "15W": 250.2
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,10 @@
+PHOTON-C complete package
+code/            codec source (python + C/OMP native kernels + studio)
+tests_suite*/    runnable suites: decoder safety, seek consistency, kernels,
+                 native (exhaustive 2^24 color), rans, fuzzer
+docs/            README + all measurement reports (FINAL_TEST_RESULTS = proof)
+demos/           playable mp4s (all decode-verified)
+streams/         the .phtn bitstreams each demo decodes from
+results/         metrics JSON + QA crops (source/old-vs-new 200kbps comparison)
+
+run everything:  ./run_all_tests.sh   (after sh code/setup_env.sh)
